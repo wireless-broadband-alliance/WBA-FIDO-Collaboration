@@ -1,0 +1,32 @@
+name: Markdown Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+      - '**/*.mmd'
+      - '.github/workflows/markdown-lint.yml'
+
+jobs:
+  markdown-lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Lint markdown files
+        uses: docker://tmknom/markdownlint:latest
+        with:
+          args: "**/*.md **/*.mmd"
+        
+      - name: Report results
+        if: failure()
+        run: |
+          echo "Markdown linting failed. Please fix the issues above."
+          echo "You can run 'markdownlint **/*.md **/*.mmd' locally to see the issues."
