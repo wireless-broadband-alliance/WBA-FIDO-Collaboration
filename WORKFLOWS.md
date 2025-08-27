@@ -30,7 +30,7 @@ More complete operational implementations may employ methods to load a new opera
 
 ### Environment
 
-The administrators of an environment are responsible for initial SCIM server, access point (AP) and RADIUS server setup and configuration.  During this process the APs must be configured to beacon the RCOI used by the [OEM](#oem) when executing the FDO DI protocol.
+The administrators of an environment are responsible for initial SCIM server, access point (AP) and RADIUS server setup and configuration.  During this process the APs must be configured with the RCOI used by the [OEM](#oem) when executing the FDO DI protocol.
 
 The environment SHOULD be configured with an DMZ/Quarantine network that restricts the client communication to DNS and the FDO Owner Service.
 
