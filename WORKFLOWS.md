@@ -79,9 +79,12 @@ sequenceDiagram
     autonumber
 
     dev ->> dev: Search for previously configured RCOI
-    dev ->>+ ap: EAP-TLS
-    ap ->>+ aaa: RADIUS
-    note over dev,ap: Device skips server authentication (TOFU)
+    dev ->>+ ap: EAP-RESPONSE/Identity (anonymous or @realm)
+    ap ->>+ aaa: RADIUS User-Name:Anonymous or @realm
+
+    aaa ->>+ ap: EAP-TLS Server Certificate
+    ap ->>+ dev: 
+    note left of dev : Device skips server authentication (TOFU)
     aaa -->>- ap: Access-Accept with DMZ policy
     ap -->>- dev: Authorized
     note over dev,ap: Device is assigned to a DMZ network
