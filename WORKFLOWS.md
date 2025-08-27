@@ -84,7 +84,13 @@ sequenceDiagram
 
     aaa ->>+ ap: EAP-TLS Server Certificate
     ap ->>+ dev: 
-    note left of dev : Device skips server authentication (TOFU)
+    note left of dev : Device skips server\nauthentication (TOFU)
+
+    dev ->>+ap: EAP-TLS Client Certificate
+    ap ->>+aaa:
+
+    note right of aaa : Validate Client\nCertificate
+
     aaa -->>- ap: Access-Accept with DMZ policy
     ap -->>- dev: Authorized
     note over dev,ap: Device is assigned to a DMZ network
