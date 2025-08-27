@@ -82,12 +82,12 @@ sequenceDiagram
     dev ->>+ ap: EAP-RESPONSE/Identity (anonymous or @realm)
     ap ->>+ aaa: RADIUS User-Name:Anonymous or @realm
 
-    aaa ->>+ ap: EAP-TLS Server Certificate
-    ap ->>+ dev: EAP-TLS Server Certificate
+    aaa ->> ap: EAP-TLS Server Certificate
+    ap ->> dev: EAP-TLS Server Certificate
     note left of dev : Device skips server<br>authentication (TOFU)
 
-    dev ->>+ ap: EAP-TLS Client Certificate
-    ap ->>+ aaa: EAP-TLS Client Certificate
+    dev ->> ap: EAP-TLS Client Certificate
+    ap ->> aaa: EAP-TLS Client Certificate
 
     note right of aaa : Validate Client<br>Certificate
 
