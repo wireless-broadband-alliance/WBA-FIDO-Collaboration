@@ -12,13 +12,17 @@ The Original Equipment Manufacturer (OEM) is responsible for installing and conf
 
 It is the responsibility of the FDO manufacturing service implementor to provide the below described functionality:
 
-While executing FDO DI, an X.509 full identity chain (Root, Intermediates, and Entity) must be added to the [FDO Ownership Voucher OVDevCertChain](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#OwnershipVoucher) field corresponding to the private key and certificate in the [FDO Device Credential](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#DeviceCredential) that will be used for EAP-TLS.
+While executing FDO DI, an X.509 full identity chain (Root, Intermediates, and End-Entity) MUST be added to the [FDO Ownership Voucher OVDevCertChain](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#OwnershipVoucher) field. The public key of the End-Entity certificate corresponds to the private key configured in the devices Restricted Operating Environment (ROE). The End-Entity certificate in the [FDO Device Credential](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#DeviceCredential) will be used for EAP-TLS.
 
-Additionally, the FDO Device Credential must include a well-known Roaming Consortium Organization Identifier (RCOI).  This setting SHOULD be a configuration parameter for an OEM or equivalent to set when deploying the service that implements the Device Initialize protocol.  The FDO RendezvousDirective MUST include a well-known Fully Qualified Domain Name (FQDN) such as `fdo-owner-service.local`.
+Additionally, the FDO Device Credential MUST include a well-known Roaming Consortium Organization Identifier (RCOI). It MAY also include a realm to be used when creating and EAP-Response/Identity message.  These settings SHOULD be configuration parameters for an OEM or equivalent to set when deploying the service that implements the Device Initialize protocol.  The FDO RendezvousDirective MUST include a well-known Fully Qualified Domain Name (FQDN) such as `fdo-owner-service.local`.
 
 ### FDO Client and Owner Service
 
-The FDO Restricted Operating Environment (ROE), that implements FDO client functionality, is responsible for starting a connection to the configured RCOI using the identity in the Device Credential for authentication.  The RADIUS Supplicant (client) MUST be configured to skip RADIUS server verification to allow for Trust-On-First-Use (TOFU).
+The device recovers the well-known RCOI from the FDO Device Credential and configures its Passpoint-enabled supplicant with the RCOI. The supplicant uses standard Passpoint functionality to search for Wi-Fi networks that match the RCOI.
+
+Once a suitable network has been identified, the FDO Restricted Operating Environment (ROE), that implements FDO client functionality, is responsible for starting an authentication exchange, using the End-Entity certificate in the Device Credential for authentication.
+
+If configured with an optional realm parameter, the Supplicant (client) creates an EAP-Response/Identity of "@realm". The Supplicant MUST be configured to skip EAP server verification to allow for Trust-On-First-Use (TOFU).
 
 The FDO Client and FDO Owner Service MUST include FDO ServiceInfo Module (FSIMs) to transfer network credentials that will be used by the device after TO2 completes.  The storage and protection of this credential is at the discretion of the implementor.  For the purposes of the demonstration the ROE will be used to re-authenticate to the production network using the newly received runtime credentials.
 
@@ -26,7 +30,7 @@ More complete operational implementations may employ methods to load a new opera
 
 ### Environment
 
-The administrators of an environment are responsible for initial SCIM server, access point (AP) and RADIUS server setup and configuration.  During this process the APs must be configured to beacon the RCOI used by the [OEM](#oem) when executing the FDO DI protocol.
+The administrators of an environment are responsible for initial SCIM server, access point (AP) and RADIUS server setup and configuration.  During this process the APs must be configured with the RCOI used by the [OEM](#oem) when executing the FDO DI protocol.
 
 The environment SHOULD be configured with an DMZ/Quarantine network that restricts the client communication to DNS and the FDO Owner Service.
 
@@ -74,10 +78,19 @@ sequenceDiagram
 
     autonumber
 
-    dev ->> dev: Search for previously configured RCOI
-    dev ->>+ ap: EAP-TLS
-    ap ->>+ aaa: RADIUS
-    note over dev,ap: Device skips server authentication (TOFU)
+    note over dev: Search for previously configured RCOI.<br/>Normal attach sequence, steps omitted
+    dev ->>+ ap: EAP-RESPONSE/Identity (anonymous or @realm)
+    ap ->>+ aaa: RADIUS User-Name:Anonymous or @realm
+
+    aaa -->>- ap: EAP-TLS Server Certificate
+    ap --x dev: EAP-TLS Server Certificate
+    note over dev : Device skips server<br/>authentication (TOFU)
+
+    dev ->> ap: EAP-TLS Client Certificate
+    ap ->>+ aaa: EAP-TLS Client Certificate
+
+    note over aaa : Validate Client<br/>Certificate
+
     aaa -->>- ap: Access-Accept with DMZ policy
     ap -->>- dev: Authorized
     note over dev,ap: Device is assigned to a DMZ network
