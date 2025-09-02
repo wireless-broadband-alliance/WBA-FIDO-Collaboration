@@ -20,7 +20,7 @@ Additionally, the FDO Device Credential MUST include a well-known Roaming Consor
 
 The device recovers the well-known RCOI from the FDO Device Credential and configures its Passpoint-enabled supplicant with the RCOI. The supplicant uses standard Passpoint functionality to search for Wi-Fi networks that match the RCOI.
 
-Once a suitable network has been identified, the FDO Restricted Operating Environment (ROE), that implements FDO client functionality, is responsible for starting an authentication exchange, using the End-Entity certificate in the Device Credential for authentication. 
+Once a suitable network has been identified, the FDO Restricted Operating Environment (ROE), that implements FDO client functionality, is responsible for starting an authentication exchange, using the End-Entity certificate in the Device Credential for authentication.
 
 If configured with an optional realm parameter, the Supplicant (client) creates an EAP-Response/Identity of "@realm". The Supplicant MUST be configured to skip EAP server verification to allow for Trust-On-First-Use (TOFU).
 
@@ -78,18 +78,18 @@ sequenceDiagram
 
     autonumber
 
-    dev ->> dev: Search for previously configured RCOI
+    note over dev: Search for previously configured RCOI.<br/>Normal attach sequence, steps omitted
     dev ->>+ ap: EAP-RESPONSE/Identity (anonymous or @realm)
     ap ->>+ aaa: RADIUS User-Name:Anonymous or @realm
 
-    aaa ->> ap: EAP-TLS Server Certificate
-    ap ->> dev: EAP-TLS Server Certificate
-    note left of dev : Device skips server<br>authentication (TOFU)
+    aaa -->>- ap: EAP-TLS Server Certificate
+    ap --x dev: EAP-TLS Server Certificate
+    note over dev : Device skips server<br/>authentication (TOFU)
 
     dev ->> ap: EAP-TLS Client Certificate
-    ap ->> aaa: EAP-TLS Client Certificate
+    ap ->>+ aaa: EAP-TLS Client Certificate
 
-    note right of aaa : Validate Client<br>Certificate
+    note over aaa : Validate Client<br/>Certificate
 
     aaa -->>- ap: Access-Accept with DMZ policy
     ap -->>- dev: Authorized
