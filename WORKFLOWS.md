@@ -12,15 +12,15 @@ The Original Equipment Manufacturer (OEM) is responsible for installing and conf
 
 It is the responsibility of the FDO manufacturing service implementor to provide the below described functionality:
 
-While executing FDO DI, an X.509 full identity chain (Root, Intermediates, and End-Entity) MUST be added to the [FDO Ownership Voucher OVDevCertChain](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#OwnershipVoucher) field. The public key of the End-Entity certificate corresponds to the private key configured in the devices Restricted Operating Environment (ROE). The End-Entity certificate in the [FDO Device Credential](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#DeviceCredential) will be used for EAP-TLS.
+While executing FDO DI, an X.509 full identity chain (Root, Intermediates, and End-Entity) MUST be added to the [FDO Ownership Voucher OVDevCertChain](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#OwnershipVoucher) field. The public key of the End-Entity certificate corresponds to the private key configured in the devices Restricted Operating Environment (ROE). The End-Entity certificate in the [FDO Device Credential](https://fidoalliance.org/specs/FDO/FIDO-Device-Onboard-PS-v1.1-20220419/FIDO-Device-Onboard-PS-v1.1-20220419.html#DeviceCredential) will be used for EAP-TLS. The ROE MUST support the identification of certificates and keys using the PKCS#11 URI (RFC7512).
 
 Additionally, the FDO Device Credential MUST include a well-known Roaming Consortium Organization Identifier (RCOI). It MAY also include a realm to be used when creating and EAP-Response/Identity message.  These settings SHOULD be configuration parameters for an OEM or equivalent to set when deploying the service that implements the Device Initialize protocol.  The FDO RendezvousDirective MUST include a well-known Fully Qualified Domain Name (FQDN) such as `fdo-owner-service.local`.
 
 ### FDO Client and Owner Service
 
-The device recovers the well-known RCOI from the FDO Device Credential and configures its Passpoint-enabled supplicant with the RCOI. The supplicant uses standard Passpoint functionality to search for Wi-Fi networks that match the RCOI.
+The device recovers the well-known RCOI from the FDO Device Credential and configures its Passpoint-enabled supplicant with the RCOI and the PKCS#11 URI(s) of the End-Entity certificate and private key stored in the ROE. The supplicant uses standard Passpoint functionality to search for Wi-Fi networks that match the RCOI.
 
-Once a suitable network has been identified, the FDO Restricted Operating Environment (ROE), that implements FDO client functionality, is responsible for starting an authentication exchange, using the End-Entity certificate in the Device Credential for authentication.
+Once a suitable network has been identified, the supplicant is responsible for starting an authentication exchange, using the PKCS#11 URI to access the End-Entity certificate and Prvate key stored in the Device Credential for performing EAP-TLS authentication.
 
 If configured with an optional realm parameter, the Supplicant (client) creates an EAP-Response/Identity of "@realm". The Supplicant MUST be configured to skip EAP server verification to allow for Trust-On-First-Use (TOFU).
 
