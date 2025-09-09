@@ -108,3 +108,127 @@ sequenceDiagram
     ap -->>- dev: Device is assigned to production network
     note over dev,aaa: . . . device proceeds to production operation . . .
 ```
+
+---
+
+### PKCS#11 URI integration
+
+The PKCS#11 URI provides the necessary abstraction, allowing the Supplicant, operating outside of the RoE, to leverage the hardware-backed security of a TPM for EAP-TLS authentication without direct knowledge of the TPM's low-level specifics.
+The sequence diagram below illustrates the API calls between TLS library (e.g., openSSL or WolfSSL, acting as the cryptographic library for the Supplicant) and the TPM that is enhanced with PKCS#11 module capability (e.g., using tpm2-pkcs11).
+
+```mermaid
+sequenceDiagram
+
+    box Passpoint Enabled Supplicant
+       participant W as EAP Client
+       participant O as TLS Library<br/>(PKCS11 Engine)
+    end
+
+    box  FIDO RoE
+       participant P as PKCS11 Module<br/>(e.g., tpm2-pkcs11)
+       participant T as TPM
+    end
+
+    Note over W,T: EAP-TLS Client Authentication Process Begins
+
+    W->>O: Initiate EAP-TLS Handshake<br/>(credential configured with PKCS11 URI)
+    activate O
+
+    Note over O: TLS Library needs client<br/>certificate and private key<br/>for TLS handshake
+
+    O->>P: C_Initialize()
+    activate P
+    P-->>O: PKCS#11 Library Initialized
+    deactivate P
+
+    O->>P: C_GetTokenInfo(token_label_from_URI)
+    activate P
+    P-->>O: Token Info (e.g., "my_tpm_token")
+    deactivate P
+
+    O->>P: C_OpenSession(token_handle)
+    activate P
+    P-->>O: Session Handle
+    deactivate P
+
+    Note over O: Locate and Retrieve<br/>Client Certificate
+
+    O->>P: C_FindObjectsInit(session_handle, attributes=<br/>{CKA_CLASS=CKO_CERTIFICATE, CKA_LABEL="my_client_cert"})
+    activate P
+    P-->>O: Find Init Success
+    deactivate P
+
+    O->>P: C_FindObjects(session_handle, max_count)
+    activate P
+    P-->>O: Certificate Object Handle
+    deactivate P
+
+    O->>P: C_FindObjectsFinal(session_handle)
+    activate P
+    P-->>O: Find Final Success
+    deactivate P
+
+    O->>P: C_GetAttributeValue<br/>(cert_object_handle, {CKA_VALUE})
+    activate P
+    P-->>O: Client Certificate Data (for sending to server)
+    deactivate P
+
+    Note over O: Locate Private Key for<br/>Cryptographic Operations<br/>(i.e., TLS mutual authentication)
+
+    O->>P: C_FindObjectsInit(session_handle, attributes=<br/>{CKA_CLASS=CKO_PRIVATE_KEY, CKA_LABEL="my_client_key"})
+    activate P
+    P-->>O: Find Init Success
+    deactivate P
+
+    O->>P: C_FindObjects(session_handle, max_count)
+    activate P
+    P-->>O: Private Key Object Handle
+    deactivate P
+
+    O->>P: C_FindObjectsFinal(session_handle)
+    activate P
+    P-->>O: Find Final Success
+    deactivate P
+
+    Note over W,T: During TLS Handshake (e.g., ClientKeyExchange, CertificateVerify messages)
+
+    W->>O: Request Private Key Operation<br/>(e.g., Sign data for TLS handshake)
+    activate O
+
+    O->>P: C_SignInit(session_handle,<br/>mechanism, private_key_handle)
+    activate P
+    P-->>O: Sign Init Success
+    deactivate P
+
+    P->>T: TPM2_Load(private_key_blob)
+    activate T
+    T-->>P: Key Loaded (TPM internal handle)
+    deactivate T
+
+    O->>P: C_Sign(session_handle, data_to_sign)
+    activate P
+    P->>T: TPM2_Sign(TPM_key_handle,<br/>data_to_sign, signing_scheme)
+    activate T
+    T-->>P: Signature (generated<br/>securely by TPM)
+    deactivate T
+    P-->>O: Signature
+    deactivate P
+
+    O-->>W: Signature (for inclusion<br/>in TLS handshake message)
+    deactivate O
+
+    Note over W,T: EAP-TLS Handshake Continues and Completes Successfully
+
+    W->>O: End of authentication / Cleanup
+    activate O
+    O->>P: C_CloseSession(session_handle)
+    activate P
+    P-->>O: Session Closed
+    deactivate P
+
+    O->>P: C_Finalize()
+    activate P
+    P-->>O: PKCS#11 Library Finalized
+    deactivate P
+    deactivate O
+```
