@@ -129,6 +129,8 @@ sequenceDiagram
        participant T as TPM
     end
 
+    Note over W,O: Passpoint Configuration Using PKCS11 URI:<br/>cred {<br/>ca_cert='/etc/ssl/certs/ca.pem'<br/>client_cert='pkcs11:token=my_tpm_token#59;<br/>object=my_client_cert#59;type=certificate'<br/>private_key='pkcs11:token=my_tpm_token#59;<br/>object=my_client_key#59;type=private'<br/>roaming_consortiums='5a03ba0a80'<br/>eap=TLS<br/>}
+
     Note over W,T: EAP-TLS Client Authentication Process Begins
 
     W->>O: Initiate EAP-TLS Handshake<br/>(credential configured with PKCS11 URI)
