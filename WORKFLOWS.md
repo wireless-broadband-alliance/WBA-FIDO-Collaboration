@@ -91,7 +91,7 @@ sequenceDiagram
 
     note over aaa : Validate Client<br/>Certificate
 
-    aaa -->>- ap: Access-Accept with DMZ policy
+    aaa -->>- ap: Access-Accept with DMZ policy<br/>e.g., session-timeout = 600 seconds
     ap -->>- dev: Authorized
     note over dev,ap: Device is assigned to a DMZ network
 
@@ -106,5 +106,11 @@ sequenceDiagram
     ap ->>+ aaa: RADIUS
     aaa -->>- ap: Access-Accept with Production Network policy
     ap -->>- dev: Device is assigned to production network
+    opt Serial TO2, e.g., involving Internet accessible services
+        dev ->>+ owner: Execute FDO TO2
+            note over dev,owner: Non-Credential TO2 operations requiring policy other than DMZ-policy, e.g., new image download
+        owner -->>- dev: FDO TO2 complete
+
+    end
     note over dev,aaa: . . . device proceeds to production operation . . .
 ```
