@@ -98,18 +98,18 @@ sequenceDiagram
     dev ->>+ dns: Lookup Owner Service<br/>address for RVBypass value
     dns -->>- dev: {Owner Service Address}
 
-    dev ->>+ owner: Execute FDO TO2
-    note over dev,owner: New environment-specific runtime credentials delivered via FSIM
-    owner -->>- dev: FDO TO2 complete
+    dev ->>+ owner: Execute FDO FSIM/TO2
+    note over dev,owner: New environment-specific runtime credentials delivered via FDO Service Info Module (FSIM)
+    owner -->>- dev: FDO FSIM/TO2 complete
 
     dev ->>+ ap: Reauth<br/>{Runtime Credential}
     ap ->>+ aaa: RADIUS
     aaa -->>- ap: Access-Accept with Production Network policy
     ap -->>- dev: Device is assigned to production network
-    opt Serial TO2, e.g., involving Internet accessible services
-        dev ->>+ owner: Execute FDO TO2
-            note over dev,owner: Non-Credential TO2 operations requiring policy other than DMZ-policy, e.g., new image download
-        owner -->>- dev: FDO TO2 complete
+    opt Sequential FSIM/TO2, e.g., involving Internet accessible services
+        dev ->>+ owner: Execute FDO FSIM/TO2
+            note over dev,owner: Non-Credential FSIM operations requiring policy other than DMZ-policy, e.g., new image download
+        owner -->>- dev: FDO FSIM/TO2 complete
 
     end
     note over dev,aaa: . . . device proceeds to production operation . . .
