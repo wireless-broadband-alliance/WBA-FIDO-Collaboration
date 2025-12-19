@@ -1,0 +1,12 @@
+[submodule "packages/fdo/third_party/safestringlib"]
+	path = packages/fdo/third_party/safestringlib
+	url = https://github.com/intel/safestringlib.git
+[submodule "packages/fdo/third_party/client-sdk-fidoiot"]
+	path = packages/fdo/third_party/client-sdk-fidoiot
+	url = https://github.com/fido-device-onboard/client-sdk-fidoiot.git
+[submodule "packages/fdo/third_party/tinycbor"]
+	path = packages/fdo/third_party/tinycbor
+	url = https://github.com/intel/tinycbor.git
+[submodule "packages/fdo/third_party/klibc"]
+	path = packages/fdo/third_party/klibc
+	url = https://github.com/ks75vl/klibc.git

@@ -1,0 +1,58 @@
+menu "Configuration"
+    depends on PACKAGE_fdo
+
+    config FDO_RAW_CREDENTIAL
+        string "Fdo raw credential file path"
+        default /etc/fdo/credential.raw.bin
+
+    config FDO_SECURE_CREDENTIAL
+        string "Fdo secure credential file path"
+        default /etc/fdo/credential.secure.bin
+
+    config FDO_SERIAL_NUMBER
+        string "Fdo serial number file path"
+        default /etc/fdo/device.serial.bin
+
+    config FDO_MODEL_NUMBER
+        string "Fdo model number file path"
+        default /etc/fdo/device.model.bin
+
+    config FDO_DEVICE_MAX_SERVICEINFO
+        string "Fdo device max service info file path"
+        default /etc/fdo/device.serviceinfo.bin
+
+    config FDO_DEVICE_IV
+        string "Fdo device iv key file path"
+        default /etc/fdo/key.iv.bin
+
+    config FDO_DEVICE_HMAC
+        string "Fdo device hmac key file path"
+        default /etc/fdo/key.hmac.bin
+
+    config FDO_DEVICE_AES
+        string "Fdo device aes key file path"
+        default /etc/fdo/key.aes.bin
+
+    menu "Fdo device ecdsa key"
+        choice FDO_ECDSA_PRIVATE_KEY_ENCODING
+            prompt "Fdo device ecdsa key encoding"
+            default FDO_ECDSA_PRIVATE_KEY_ENCODING_PEM
+
+            config FDO_ECDSA_PRIVATE_KEY_ENCODING_PEM
+                bool
+                prompt "PEM"
+
+            config FDO_ECDSA_PRIVATE_KEY_ENCODING_DER
+                bool
+                prompt "DER"
+        endchoice
+
+        config FDO_DEVICE_ESCDA
+            string "Fdo device ecdsa key file path"
+            default /etc/fdo/key.ecdsa.pem
+    endmenu
+
+    config FDO_LOG_AES_DEBUG
+        bool "Enable AES debug log"
+        default false
+endmenu
