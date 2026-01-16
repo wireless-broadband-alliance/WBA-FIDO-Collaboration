@@ -129,6 +129,8 @@ sequenceDiagram
        participant T as TPM
     end
 
+    Note over T: TPM keys stored<br/>as private and public<br/>blobs
+
     Note over W,O: Passpoint Configuration Using PKCS11 URI:<br/>cred{ca_cert='/etc/ssl/certs/ca.pem'<br/>client_cert='pkcs11:token=my_tpm_token#59;<br/>object=my_client_cert#59;type=certificate'<br/>private_key='pkcs11:token=my_tpm_token#59;<br/>object=my_client_key#59;type=private'<br/>roaming_consortiums='5a03ba0a80'<br/>eap=TLS}
 
     Note over W,T: EAP-TLS Client Authentication Process Begins
@@ -202,13 +204,18 @@ sequenceDiagram
     P-->>O: Sign Init Success
     deactivate P
 
+    Note over P,T:Load TPM key into TPM object<br/>so it can be used in crypto operations
     P->>T: TPM2_Load(private_key_blob)
     activate T
     T-->>P: Key Loaded (TPM internal handle)
     deactivate T
 
+
     O->>P: C_Sign(session_handle, data_to_sign)
     activate P
+
+    Note over P,T:TPM generates digital signature<br/>over data_to_sign using private key reference/handle<br/>without exposing private key
+
     P->>T: TPM2_Sign(TPM_key_handle,<br/>data_to_sign, signing_scheme)
     activate T
     T-->>P: Signature (generated<br/>securely by TPM)
