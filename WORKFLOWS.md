@@ -108,7 +108,7 @@ sequenceDiagram
     ap -->>- dev: Device is assigned to production network
     opt Sequential FSIM/TO2, e.g., involving Internet accessible services
         dev ->>+ owner: Execute FDO FSIM/TO2
-            note over dev,owner: Non-Credential FSIM operations requiring policy other than DMZ-policy, e.g., new image download
+            note over dev,owner: Non-Credential FSIM operations<br/>requiring policy other than DMZ-policy, e.g., new image download
         owner -->>- dev: FDO FSIM/TO2 complete
 
     end
