@@ -99,7 +99,7 @@ sequenceDiagram
     dns -->>- dev: {Owner Service Address}
 
     dev ->>+ owner: Execute FDO FSIM/TO2
-    note over dev,owner: New environment-specific runtime credentials delivered via FDO Service Info Module (FSIM)
+    note over dev,owner: New environment-specific runtime credentials<br/>delivered via FDO Service Info Module (FSIM)
     owner -->>- dev: FDO FSIM/TO2 complete
 
     dev ->>+ ap: Reauth<br/>{Runtime Credential}
