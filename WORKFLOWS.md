@@ -106,7 +106,7 @@ sequenceDiagram
     ap ->>+ aaa: RADIUS
     aaa -->>- ap: Access-Accept with Production Network policy
     ap -->>- dev: Device is assigned to production network
-    opt Sequential FSIM/TO2, e.g., involving Internet accessible services
+    opt Sequential FSIM/TO2, e.g., involving Internet accessible services. This will require a new invocation of FDO.
         dev ->>+ owner: Execute FDO FSIM/TO2
             note over dev,owner: Non-Credential FSIM operations<br/>requiring policy other than DMZ-policy, e.g., new image download
         owner -->>- dev: FDO FSIM/TO2 complete
